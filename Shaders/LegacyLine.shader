@@ -42,7 +42,11 @@ Shader "Hslr/LegacyLine"
             float4 _Color;
             int _NodeCount;
             float _Thickness;
-            
+
+            float2 WCorrect(float4 positionCs)
+            {
+                return float2(positionCs.x * positionCs.w, positionCs.y * positionCs.w);
+            }
 
             v2f vert (appdata v)
             {
@@ -55,14 +59,20 @@ Shader "Hslr/LegacyLine"
                 float4 thisPosSs = UnityObjectToClipPos(context.thisNode.position);
                 float4 nextPosSs = UnityObjectToClipPos(context.nextNode.position);
 
-                thisPosSs += float4(0, thicknessSign * _Thickness, 0, 0);
+                float2 aspectRatioCorrection = float2(_ScreenParams.y / _ScreenParams.x, 1);
 
+                float2 toRight = normalize(WCorrect(nextPosSs) -  WCorrect(thisPosSs));
+                float2 toLeft = normalize(WCorrect(thisPosSs) - WCorrect(prevPosSs));
+                float2 toRightRotated = float2(-toRight.y, toRight.x);
+                float2 toLeftRotated = float2(-toLeft.y, toLeft.x);
+                float2 jointNormal = normalize ((toRightRotated + toLeftRotated));
 
+                float2 offset = jointNormal * _Thickness * thicknessSign * thisPosSs.w / 2 * aspectRatioCorrection ;
+
+                thisPosSs.xy += offset;
 
                 o.vertex = thisPosSs;
                 o.color = context.thisNode.color;
-                // o.vertex = UnityObjectToClipPos(position);
-                // o.uv = float2(0, 0);
                 return o;
             }
 

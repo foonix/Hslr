@@ -24,12 +24,12 @@ namespace Hslr
             {
                 buffer = new(nodes.Count, Marshal.SizeOf<PathNode>(), ComputeBufferType.Structured, ComputeBufferMode.Immutable);
             }
-            int segmentCount = nodes.Count;
-            material.SetInteger("_SegmentCount", segmentCount);
+            int nodeCount = nodes.Count;
+            material.SetInteger("_NodeCount", nodeCount);
             material.SetBuffer("PathDataBuffer", buffer);
 
             cb.SetBufferData(buffer, nodes);
-            cb.DrawProcedural(objectTrs, material, 0, MeshTopology.Triangles, segmentCount * 6);
+            cb.DrawProcedural(objectTrs, material, 0, MeshTopology.Triangles, (nodeCount) * 6);
         }
 
         public void Dispose()

@@ -14,7 +14,8 @@ Shader "Hslr/LegacyLine"
     SubShader
     {
         // Tags { "RenderType"="Opaque" }
-        // Blend SrcAlpha OneMinusSrcAlpha
+        Blend One One
+        ZWrite off
         Cull Off
 
         Pass
@@ -35,7 +36,7 @@ Shader "Hslr/LegacyLine"
 
             struct v2f
             {
-                // float2 uv : TEXCOORD0;
+                float2 uv : TEXCOORD0;
                 float4 vertex : SV_POSITION;
                 float4 color : COLOR0;
             };
@@ -106,15 +107,17 @@ Shader "Hslr/LegacyLine"
                 float2 offset = normal * orientation.x;
                 o.vertex = current + float4(offset * pow(current.w, 1 - _Perspective), 0, 0);
 
+                o.uv = float2((thicknessSign + 1) / 2, 0);
                 o.color = context.thisNode.color;
                 return o;
             }
 
             fixed4 frag (v2f i) : SV_Target
             {
-                // fixed4 col = tex2D(_MainTex, i.uv);
+                fixed4 texColor = tex2D(_MainTex, i.uv);
 
-                return _Color * i.color;
+
+                return _Color * i.color * texColor;
             }
             ENDHLSL
         }

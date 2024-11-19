@@ -16,18 +16,26 @@ struct NodeContext
 
 StructuredBuffer<NodeData> PathDataBuffer;
 
-void GetVertNodeIdsWrapped(uint vertexID, uint nodeCount, out uint previous, out uint this, out uint next)
+bool IsSegmentEnd(uint vertexID)
 {
-    this = vertexID / 6;
-    
-    // these verts are on the next node.
     switch (vertexID % 6)
     {
         case 2:
         case 4:
         case 5:
-            this += 1;
-            break;
+            return true;
+    }
+    return false;
+}
+
+void GetVertNodeIdsWrapped(uint vertexID, uint nodeCount, out uint previous, out uint this, out uint next)
+{
+    this = vertexID / 6;
+
+    // these verts are on the next node.
+    if (IsSegmentEnd(vertexID))
+    {
+        this += 1;
     }
     
     // wrap end to beginning

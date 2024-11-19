@@ -34,7 +34,7 @@ namespace Hslr
 
         public void Dispose()
         {
-            buffer.Dispose();
+            buffer?.Dispose();
         }
     }
 }

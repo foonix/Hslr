@@ -20,8 +20,9 @@ namespace Hslr
 
         public void RenderTo(CommandBuffer cb)
         {
-            if (buffer is null)
+            if (buffer is null || buffer.count != nodes.Count)
             {
+                buffer?.Dispose();
                 buffer = new(nodes.Count, Marshal.SizeOf<PathNode>(), ComputeBufferType.Structured, ComputeBufferMode.Immutable);
             }
             int nodeCount = nodes.Count;

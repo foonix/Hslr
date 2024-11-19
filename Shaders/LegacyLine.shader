@@ -7,7 +7,7 @@ Shader "Hslr/LegacyLine"
         // [Toggle(_USE_PQS_BUFFER)] _NoComputeBuffer ("Use PathDataBuffer for line data. ", float) = 0.9
         _NodeCount ("Node Count", Integer) = 0
         _Thickness ("Thickness", float) = 0.1
-        _MiterThreshold("Miter Threshold", float) = 0.8
+        _MiterThreshold("Miter Threshold", Range(-1,1)) = 0.8
         _Perspective("Perspective", Range(0,1)) = 0
     }
 

@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -14,7 +12,6 @@ namespace Hslr
         void Start()
         {
             Camera.onPreRender += OnPreRenderCallback;
-
         }
 
         void OnPreRenderCallback(Camera cam)

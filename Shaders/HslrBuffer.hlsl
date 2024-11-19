@@ -28,6 +28,18 @@ bool IsSegmentEnd(uint vertexID)
     return false;
 }
 
+float GetVertThicknessSign(uint vertexID)
+{
+    switch (vertexID % 6)
+    {
+        case 0:
+        case 3:
+        case 5:
+            return -1;
+    }
+    return 1;
+}
+
 void GetVertNodeIdsWrapped(uint vertexID, uint nodeCount, out uint previous, out uint this, out uint next)
 {
     this = vertexID / 6;
@@ -73,17 +85,5 @@ NodeContext ReadFromBuffer(uint vertexID, uint nodeCount)
     context.nextNode = PathDataBuffer[next];
     
     return context;
-}
-
-float GetVertThicknessSign(uint vertexID)
-{
-    switch (vertexID % 6)
-    {
-        case 0:
-        case 3:
-        case 5:
-            return -1;
-    }
-    return 1;
 }
 #endif

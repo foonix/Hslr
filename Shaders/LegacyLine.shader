@@ -13,7 +13,7 @@ Shader "Hslr/LegacyLine"
 
     SubShader
     {
-        // Tags { "RenderType"="Opaque" }
+        Tags { "Queue"="Transparent" "RenderType"="Transparent" }
         Blend One One
         ZWrite off
         // Cull Off
@@ -126,8 +126,9 @@ Shader "Hslr/LegacyLine"
             {
                 fixed4 texColor = tex2D(_MainTex, i.uv);
 
-
-                return _Color * i.color * texColor;
+                fixed4 color = _Color * i.color * texColor;
+                color.xyz *= color.a;
+                return color;
             }
             ENDHLSL
         }

@@ -68,7 +68,8 @@ Shader "Hslr/LegacyLine"
                 float2 next_screen = next.xy / next.w * _ScreenParams.xy;
 
                 float len = _Thickness/*  * _ThicknessMultiplier */;
-                float2 orientation = float2(thicknessSign, 1);
+                // y here is 0 for midpoint, 1 for beginning, 2 for end.
+                float2 orientation = float2(thicknessSign, 0);
                 float2 dir = float2(0,0);
 
                 if (orientation.y == 1.0) {

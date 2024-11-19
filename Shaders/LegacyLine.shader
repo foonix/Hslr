@@ -7,6 +7,8 @@ Shader "Hslr/LegacyLine"
         // [Toggle(_USE_PQS_BUFFER)] _NoComputeBuffer ("Use PathDataBuffer for line data. ", float) = 0.9
         _NodeCount ("Node Count", Integer) = 0
         _Thickness ("Thickness", float) = 0.1
+        _MiterThreshold("Miter Threshold", float) = 0.8
+        _Perspective("Perspective", Range(0,1)) = 0
     }
 
     SubShader
@@ -42,6 +44,8 @@ Shader "Hslr/LegacyLine"
             float4 _Color;
             int _NodeCount;
             float _Thickness;
+            float _MiterThreshold;
+            float _Perspective;
 
             float2 WCorrect(float4 positionCs)
             {
@@ -55,23 +59,52 @@ Shader "Hslr/LegacyLine"
 
                 float thicknessSign = GetVertThicknessSign(v.vertexID);
 
-                float4 prevPosSs = UnityObjectToClipPos(context.prevNode.position);
-                float4 thisPosSs = UnityObjectToClipPos(context.thisNode.position);
-                float4 nextPosSs = UnityObjectToClipPos(context.nextNode.position);
+                float4 prev = UnityObjectToClipPos(context.prevNode.position);
+                float4 current = UnityObjectToClipPos(context.thisNode.position);
+                float4 next = UnityObjectToClipPos(context.nextNode.position);
 
-                float2 aspectRatioCorrection = float2(_ScreenParams.y / _ScreenParams.x, 1);
+                float2 current_screen = current.xy / current.w * _ScreenParams.xy;
+                float2 prev_screen = prev.xy / prev.w * _ScreenParams.xy;
+                float2 next_screen = next.xy / next.w * _ScreenParams.xy;
 
-                float2 toRight = normalize(WCorrect(nextPosSs) -  WCorrect(thisPosSs));
-                float2 toLeft = normalize(WCorrect(thisPosSs) - WCorrect(prevPosSs));
-                float2 toRightRotated = float2(-toRight.y, toRight.x);
-                float2 toLeftRotated = float2(-toLeft.y, toLeft.x);
-                float2 jointNormal = normalize ((toRightRotated + toLeftRotated));
+                float len = _Thickness/*  * _ThicknessMultiplier */;
+                float2 orientation = float2(thicknessSign, 1);
+                float2 dir = float2(0,0);
 
-                float2 offset = jointNormal * _Thickness * thicknessSign * thisPosSs.w / 2 * aspectRatioCorrection ;
+                if (orientation.y == 1.0) {
+                    dir = normalize(next_screen - current_screen);
+                }
+                else if (orientation.y == 2.0) {
+                    dir = normalize(current_screen - prev_screen);
+                }
+                else {
+                    float2 dirA = normalize(current_screen - prev_screen);
+                    float2 dirB = normalize(next_screen - current_screen);
 
-                thisPosSs.xy += offset;
+                    float flip = sign(.1 + sign(dot(dirA,dirB) + _MiterThreshold));
 
-                o.vertex = thisPosSs;
+                    dirB *= flip;
+
+                    float2 tangent = (dirA + dirB) / 2; //Divide by two normalizes since len is 2.
+                    float2 perp_dirA = float2(-dirA.y, dirA.x);
+                    float2 perp_tangent = float2(-tangent.y, tangent.x);
+
+                    dir = tangent;
+                    len /= dot(perp_tangent, perp_dirA);
+                }
+
+                float2 normal = (float2(-dir.y, dir.x));
+                // One might think that we should "extrude" only half of the length,
+                // since the other point will also be moved away from this point by the same distance.
+                // However, we are actually only moving half of len pixels since the space we are working in
+                // is twice as large as the screen: (-width, +width) rather than (0, width) and same for the height.
+                // Essentially there are two factor of two which cancel each other out.
+                normal *= len;
+                normal *= _ScreenParams.zw - 1; // Equivalent to `normal /= _ScreenParams.xy` but with less division.
+
+                float2 offset = normal * orientation.x;
+                o.vertex = current + float4(offset * pow(current.w, 1 - _Perspective), 0, 0);
+
                 o.color = context.thisNode.color;
                 return o;
             }

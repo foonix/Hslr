@@ -42,7 +42,7 @@ namespace Hslr
             material.SetInteger("_NodeCount", nodeCount);
             material.SetBuffer("PathDataBuffer", buffer);
 
-            cb.SetBufferData(buffer, nodes);
+            cb.SetBufferData(buffer, nodes, 0, 0, nodeCount);
 
             if (useIndexBuffer)
             {

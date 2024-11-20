@@ -12,8 +12,10 @@ namespace Hslr
     {
         public Matrix4x4 objectTrs;
         public Material material;
-        public int capacity;
-        public int used;
+
+        [Tooltip("Limit the number of nodes drawn to less than the entire buffer.  This allows changing the number of segments drawn without resizing the buffer.")]
+        public int limitCount;
+
         ComputeBuffer buffer;
 
         public List<PathNode> nodes;
@@ -25,7 +27,9 @@ namespace Hslr
                 buffer?.Dispose();
                 buffer = new(nodes.Count, Marshal.SizeOf<PathNode>(), ComputeBufferType.Structured, ComputeBufferMode.Immutable);
             }
-            int nodeCount = nodes.Count;
+
+            int nodeCount = limitCount > 0 ? limitCount : nodes.Count;
+
             material.SetInteger("_NodeCount", nodeCount);
             material.SetBuffer("PathDataBuffer", buffer);
 

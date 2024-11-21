@@ -4,7 +4,7 @@
 struct NodeData
 {
     float3 position;
-    float4 color;
+    uint color;
 };
 
 struct NodeContext
@@ -85,5 +85,15 @@ NodeContext ReadFromBuffer(uint vertexID, uint nodeCount)
     context.nextNode = PathDataBuffer[next];
     
     return context;
+}
+
+float4 UnpackColor(uint color)
+{
+    float4 ret;
+    ret.r = float(color & 0xFF000000u >> 24u) / 255;
+    ret.g = float(color & 0x00FF0000u >> 16u) / 255;
+    ret.b = float(color & 0x0000FF00u >> 8u) / 255;
+    ret.a = float(color & 0x000000FFu) / 255;
+    return ret;
 }
 #endif

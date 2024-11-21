@@ -9,7 +9,6 @@ namespace Hslr
     public struct PathNode
     {
         public Vector3 position;
-        //public uint color;
-        public Color color;
+        public Color32 color;
     }
 }

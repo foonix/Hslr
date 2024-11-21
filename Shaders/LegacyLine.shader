@@ -118,7 +118,7 @@ Shader "Hslr/LegacyLine"
                 o.vertex = current + float4(offset * pow(current.w, 1 - _Perspective), 0, 0);
 
                 o.uv = float2((thicknessSign + 1) / 2, isSegmentEnd ? 0 : 1);
-                o.color = context.thisNode.color;
+                o.color = UnpackColor(context.thisNode.color);
                 return o;
             }
 

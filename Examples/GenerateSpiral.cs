@@ -8,11 +8,14 @@ namespace Hslr
     public class GenerateSpiral : MonoBehaviour
     {
         public int nodeCount = 2000;
+        public float density = 100f;
+        public float rotateSpeed = 10f;
         private int lastNodeCount;
 
         private void Update()
         {
             UpdateSpiral();
+            transform.localRotation = Quaternion.Euler(0, Time.timeSinceLevelLoad * rotateSpeed, 0);
         }
 
         void UpdateSpiral()
@@ -29,11 +32,11 @@ namespace Hslr
             renderer.path.nodes.Clear();
             for (int i = 0; i < nodeCount; i++)
             {
-                float param = i / 100f;
+                float param = i / density;
                 renderer.path.nodes.Add(new()
                 {
                     position = new Vector3(Mathf.Cos(param), Mathf.Sin(param), Mathf.Sin(param * 8) * 0.25f) * param,
-                    color = Color.white,
+                    color = new Color32(0xff, 0xff, 0xff, 0xff),
                 });
             }
         }

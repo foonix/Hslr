@@ -37,21 +37,21 @@ namespace Hslr
             using var marker = renderToMarker.Auto();
 
             EnsurePathBufferCapacity();
-            int nodeCount = limitCount > 0 ? limitCount : nodes.Count;
+            int nodesToDraw = limitCount > 0 ? Math.Min(limitCount, nodes.Count) : nodes.Count;
 
-            material.SetInteger("_NodeCount", nodeCount);
+            material.SetInteger("_NodeCount", nodesToDraw);
             material.SetBuffer("PathDataBuffer", buffer);
 
-            cb.SetBufferData(buffer, nodes, 0, 0, nodeCount);
+            cb.SetBufferData(buffer, nodes, 0, 0, nodesToDraw);
 
             if (useIndexBuffer)
             {
                 MaybeSetupIndexBuffer(cb);
-                cb.DrawProcedural(indexBuffer, objectTrs, material, 0, MeshTopology.Triangles, nodeCount * vertsPerNode);
+                cb.DrawProcedural(indexBuffer, objectTrs, material, 0, MeshTopology.Triangles, nodesToDraw * vertsPerNode);
             }
             else
             {
-                cb.DrawProcedural(objectTrs, material, 0, MeshTopology.Triangles, nodeCount * vertsPerNode);
+                cb.DrawProcedural(objectTrs, material, 0, MeshTopology.Triangles, nodesToDraw * vertsPerNode);
             }
         }
 
@@ -69,18 +69,17 @@ namespace Hslr
             using var marker = generateIndexBufferMarker.Auto();
 
             bool refillBuffer = false;
-            int indexBufferSize = nodes.Count * vertsPerNode * 2;
-            if (indexBufferInput is null || indexBufferInput.Count > indexBufferSize)
+            int requiredSize = nodes.Count * vertsPerNode;
+            if (indexBufferInput is null || indexBufferInput.Count < requiredSize)
             {
-                indexBufferInput ??= new(indexBufferSize);
-                indexBufferInput.Capacity = indexBufferSize;
+                indexBufferInput ??= new(requiredSize);
                 refillBuffer = true;
             }
 
-            if (indexBuffer is null || indexBuffer.count < indexBufferSize)
+            if (indexBuffer is null || indexBuffer.count < requiredSize)
             {
                 indexBuffer?.Dispose();
-                indexBuffer = new(GraphicsBuffer.Target.Index, indexBufferSize, sizeof(int));
+                indexBuffer = new(GraphicsBuffer.Target.Index, requiredSize, sizeof(int));
             }
 
             if (!refillBuffer)
@@ -89,7 +88,7 @@ namespace Hslr
             }
 
             indexBufferInput.Clear();
-            for (uint i = 0; i < indexBufferSize; i++)
+            for (uint i = 0; i < requiredSize; i++)
             {
                 uint segmentNum = i / vertsPerNode;
                 uint segmentStart = segmentNum * vertsPerNode;

@@ -16,7 +16,7 @@ Shader "Hslr/LegacyLine"
         Tags { "Queue"="Transparent" "RenderType"="Transparent" }
         Blend One One
         ZWrite off
-        // Cull Off
+        Cull Off
 
         Pass
         {

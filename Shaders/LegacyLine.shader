@@ -3,7 +3,7 @@ Shader "Hslr/LegacyLine"
     Properties
     {
         [MainTexture] _MainTex ("Overlay Texture", 2D) = "white" {}
-        _Color ("Tint", Color) = (1, 1, 1, 1)
+        [HDR] _Color ("Tint", Color) = (1, 1, 1, 1)
         // [Toggle(_USE_PQS_BUFFER)] _NoComputeBuffer ("Use PathDataBuffer for line data. ", float) = 0.9
         _NodeCount ("Node Count", Integer) = 0
         _Thickness ("Thickness", float) = 0.1
@@ -14,7 +14,7 @@ Shader "Hslr/LegacyLine"
     SubShader
     {
         Tags { "Queue"="Transparent" "RenderType"="Transparent" }
-        Blend One One
+        Blend One OneMinusSrcAlpha
         ZWrite off
         Cull Off
 

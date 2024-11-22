@@ -15,6 +15,8 @@ struct NodeContext
 };
 
 StructuredBuffer<NodeData> PathDataBuffer;
+int _NodeCount;
+int _LoopPath;
 
 bool IsSegmentEnd(uint vertexID)
 {
@@ -71,19 +73,17 @@ void GetVertNodeIdsWrapped(uint vertexID, uint nodeCount, out uint previous, out
 
 // gets the previous/current/next data for the node the current vertex belongs to.
 // note: a given triangle/quad will have verts on different nodes.
-NodeContext ReadFromBuffer(uint vertexID, uint nodeCount)
+NodeContext ReadFromBuffer(uint vertexID, uint nodeCount, out uint thisNodeIdx)
 {
     NodeContext context;
     
     uint previous;
-    uint this;
     uint next;
-    GetVertNodeIdsWrapped(vertexID, nodeCount, previous, this, next);
+    GetVertNodeIdsWrapped(vertexID, nodeCount, previous, thisNodeIdx, next);
     
     context.prevNode = PathDataBuffer[previous];
-    context.thisNode = PathDataBuffer[this];
+    context.thisNode = PathDataBuffer[thisNodeIdx];
     context.nextNode = PathDataBuffer[next];
-    
     return context;
 }
 

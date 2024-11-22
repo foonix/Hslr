@@ -9,6 +9,7 @@ Shader "Hslr/LegacyLine"
         _Thickness ("Thickness", float) = 0.1
         _MiterThreshold("Miter Threshold", Range(-1,1)) = 0.8
         _Perspective("Perspective", Range(0,1)) = 0
+        _LoopPath ("Loop Path", Integer) = 1
     }
 
     SubShader
@@ -43,7 +44,6 @@ Shader "Hslr/LegacyLine"
 
             sampler2D _MainTex;
             float4 _Color;
-            int _NodeCount;
             float _Thickness;
             float _MiterThreshold;
             float _Perspective;
@@ -56,7 +56,8 @@ Shader "Hslr/LegacyLine"
             v2f vert (appdata v)
             {
                 v2f o;
-                NodeContext context = ReadFromBuffer(v.vertexID, (uint)_NodeCount);
+                uint thisNodeIdx;
+                NodeContext context = ReadFromBuffer(v.vertexID, (uint)_NodeCount, thisNodeIdx);
 
                 float thicknessSign = GetVertThicknessSign(v.vertexID);
 
@@ -70,15 +71,17 @@ Shader "Hslr/LegacyLine"
 
                 // "noots" unit from Shapes
                 float len = _Thickness * (min(_ScreenParams.x, _ScreenParams.y) / 100);
+
+
                 // y here is 0 for midpoint, 1 for beginning, 2 for end.
                 float2 orientation = float2(thicknessSign, 0);
                 float2 dir = float2(0,0);
 
                 float flip;
-                if (orientation.y == 1.0) {
+                if (_LoopPath < 1 && thisNodeIdx == 0) {
                     dir = normalize(next_screen - current_screen);
                 }
-                else if (orientation.y == 2.0) {
+                else if (_LoopPath < 1 && thisNodeIdx > _NodeCount) {
                     dir = normalize(current_screen - prev_screen);
                 }
                 else {

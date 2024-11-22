@@ -32,8 +32,18 @@ namespace Hslr
 
         private const int vertsPerSegment = 6;
 
+        private static readonly int loopPathId = Shader.PropertyToID("_LoopPath");
+        private static readonly int nodeCountId = Shader.PropertyToID("_NodeCount");
+        private static readonly int thicknessId = Shader.PropertyToID("_Thickness");
+        private static readonly int colorId = Shader.PropertyToID("_Color");
+        private static readonly int pathDataBufferId = Shader.PropertyToID("PathDataBuffer");
+
+
         private static readonly ProfilerMarker renderToMarker = new("Path.RenderTo()");
         private static readonly ProfilerMarker generateIndexBufferMarker = new("Path.GenerateIndexBuffer()");
+
+        public Color Color { set => material.SetColor(colorId, value); }
+        public float Thickness { set => material.SetFloat(thicknessId, value); }
 
         public void RenderTo(CommandBuffer cb)
         {
@@ -43,9 +53,9 @@ namespace Hslr
             int nodesToDraw = limitCount > 0 ? Math.Min(limitCount, nodes.Count) : nodes.Count;
             int segmentsToDraw = loopPath ? nodesToDraw : nodesToDraw - 1;
 
-            material.SetInteger("_LoopPath", loopPath ? 1 : 0);
-            material.SetInteger("_NodeCount", nodesToDraw);
-            material.SetBuffer("PathDataBuffer", buffer);
+            material.SetInteger(loopPathId, loopPath ? 1 : 0);
+            material.SetInteger(nodeCountId, nodesToDraw);
+            material.SetBuffer(pathDataBufferId, buffer);
 
             cb.SetBufferData(buffer, nodes, 0, 0, nodesToDraw);
 

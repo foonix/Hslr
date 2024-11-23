@@ -10,12 +10,13 @@ Shader "Hslr/LegacyLine"
         _MiterThreshold("Miter Threshold", Range(-1,1)) = 0.8
         _Perspective("Perspective", Range(0,1)) = 0
         _LoopPath ("Loop Path", Integer) = 1
+        _Gamma ("Gamma", float) = 1.0
     }
 
     SubShader
     {
         Tags { "Queue"="Transparent" "RenderType"="Transparent" }
-        Blend One OneMinusSrcAlpha
+        Blend SrcAlpha OneMinusSrcAlpha
         ZWrite off
         Cull Off
 
@@ -44,6 +45,7 @@ Shader "Hslr/LegacyLine"
 
             sampler2D _MainTex;
             float4 _Color;
+            float _Gamma;
             float _Thickness;
             float _MiterThreshold;
             float _Perspective;
@@ -71,7 +73,6 @@ Shader "Hslr/LegacyLine"
 
                 // "noots" unit from Shapes
                 float len = _Thickness * (min(_ScreenParams.x, _ScreenParams.y) / 100);
-
 
                 // y here is 0 for midpoint, 1 for beginning, 2 for end.
                 float2 orientation = float2(thicknessSign, 0);
@@ -123,15 +124,19 @@ Shader "Hslr/LegacyLine"
 
                 o.uv = float2((thicknessSign + 1) / 2, isSegmentEnd ? 0 : 1);
                 o.color = UnpackColor(context.thisNode.color);
+
                 return o;
             }
 
-            fixed4 frag (v2f i) : SV_Target
+            float4 frag (v2f i) : SV_Target
             {
-                fixed4 texColor = tex2D(_MainTex, i.uv);
+                float4 color = _Color  * i.color;
 
-                fixed4 color = _Color * i.color * texColor;
-                color.xyz *= color.a;
+                color *= tex2D(_MainTex, i.uv);
+
+                // gamma correction meant for situations like using sRGB input colors on a linear render target.
+                color.xyz = pow(color.xyz, float3(_Gamma, _Gamma, _Gamma));
+
                 return color;
             }
             ENDHLSL

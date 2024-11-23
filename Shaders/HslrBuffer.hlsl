@@ -90,10 +90,10 @@ NodeContext ReadFromBuffer(uint vertexID, uint nodeCount, out uint thisNodeIdx)
 float4 UnpackColor(uint color)
 {
     float4 ret;
-    ret.r = float(color & 0xFF000000u >> 24u) / 255;
-    ret.g = float(color & 0x00FF0000u >> 16u) / 255;
-    ret.b = float(color & 0x0000FF00u >> 8u) / 255;
-    ret.a = float(color & 0x000000FFu) / 255;
+    ret.r = float((color >> 24u) & 0xFFu) / 255;
+    ret.g = float((color >> 16u) & 0xFFu) / 255;
+    ret.b = float((color >> 8u) & 0xFFu) / 255;
+    ret.a = float((color) & 0xFFu) / 255;
     return ret;
 }
 #endif

@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Hslr
@@ -10,6 +8,7 @@ namespace Hslr
         public int nodeCount = 2000;
         public float density = 100f;
         public float rotateSpeed = 10f;
+        public Color color;
         private int lastNodeCount;
 
         private void Update()
@@ -36,7 +35,7 @@ namespace Hslr
                 renderer.path.nodes.Add(new()
                 {
                     position = new Vector3(Mathf.Cos(param), Mathf.Sin(param), Mathf.Sin(param * 8) * 0.25f) * param,
-                    color = new Color32(0xff, 0xff, 0xff, 0xff),
+                    Color = color
                 });
             }
         }

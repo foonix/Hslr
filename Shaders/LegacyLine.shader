@@ -8,7 +8,6 @@ Shader "Hslr/LegacyLine"
         _NodeCount ("Node Count", Integer) = 0
         _Thickness ("Thickness", float) = 0.1
         _MiterThreshold("Miter Threshold", Range(-1,1)) = 0.8
-        _Perspective("Perspective", Range(0,1)) = 0
         _LoopPath ("Loop Path", Integer) = 1
         _Gamma ("Gamma", float) = 1.0
     }
@@ -48,7 +47,6 @@ Shader "Hslr/LegacyLine"
             float _Gamma;
             float _Thickness;
             float _MiterThreshold;
-            float _Perspective;
 
             float2 WCorrect(float4 positionCs)
             {
@@ -121,7 +119,7 @@ Shader "Hslr/LegacyLine"
 
                 float2 offset = normal * thicknessSign;
 
-                o.vertex = current + float4(offset * pow(current.w, 1 - _Perspective), 0, 0);
+                o.vertex = current + float4(offset * current.w, 0, 0);
 
                 o.uv = float2((thicknessSign + 1) / 2, isSegmentEnd ? 0 : 1);
                 o.color = UnpackColor(context.thisNode.color);

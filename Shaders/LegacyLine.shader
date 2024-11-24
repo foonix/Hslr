@@ -74,22 +74,23 @@ Shader "Hslr/LegacyLine"
                 // "noots" unit from Shapes
                 float len = _Thickness * (min(_ScreenParams.x, _ScreenParams.y) / 100);
 
-                // y here is 0 for midpoint, 1 for beginning, 2 for end.
-                float2 orientation = float2(thicknessSign, 0);
-                float2 dir = float2(0,0);
+                float2 dir = float2(0, 0);
 
                 float flip;
                 if (_LoopPath < 1 && thisNodeIdx == 0) {
+                    // first node in non-looping path goes toward the second node.
                     dir = normalize(next_screen - current_screen);
                 }
                 else if (_LoopPath < 1 && thisNodeIdx > _NodeCount) {
+                    // last node in non-looping path goes toward second to last node.
                     dir = normalize(current_screen - prev_screen);
                 }
                 else {
+                    // an intermediate point in non-looping path, or all points in looping path.
                     float2 dirA = normalize(current_screen - prev_screen);
                     float2 dirB = normalize(next_screen - current_screen);
 
-                    flip = sign(.1 + sign(dot(dirA,dirB) + _MiterThreshold));
+                    flip = sign(.1 + sign(dot(dirA, dirB) + _MiterThreshold));
 
                     dirB *= flip;
 
@@ -101,7 +102,7 @@ Shader "Hslr/LegacyLine"
                     len /= dot(perp_tangent, perp_dirA);
                 }
 
-                float2 normal = (float2(-dir.y, dir.x));
+                float2 normal = float2(-dir.y, dir.x);
 
                 bool isSegmentEnd = IsSegmentEnd(v.vertexID);
 
@@ -118,7 +119,7 @@ Shader "Hslr/LegacyLine"
                 normal *= len;
                 normal *= _ScreenParams.zw - 1; // Equivalent to `normal /= _ScreenParams.xy` but with less division.
 
-                float2 offset = normal * orientation.x;
+                float2 offset = normal * thicknessSign;
 
                 o.vertex = current + float4(offset * pow(current.w, 1 - _Perspective), 0, 0);
 

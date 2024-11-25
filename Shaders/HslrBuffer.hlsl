@@ -53,12 +53,9 @@ void GetVertNodeIdsWrapped(uint vertexID, uint nodeCount, out uint previous, out
     }
     
     // wrap end to beginning
-    if (this >= nodeCount)
-    {
-        this -= nodeCount;
-    }
+    this %= nodeCount;
 
-    next = this + 1;
+    next = (this + 1) % nodeCount;
     
     if (this == 0)
     {

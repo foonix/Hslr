@@ -17,7 +17,6 @@ Shader "Hslr/LegacyLine"
         Tags { "Queue"="Transparent" "RenderType"="Transparent" }
         Blend SrcAlpha OneMinusSrcAlpha
         ZWrite off
-        Cull Off
 
         Pass
         {
@@ -100,7 +99,7 @@ Shader "Hslr/LegacyLine"
                     len /= dot(perp_tangent, perp_dirA);
                 }
 
-                float2 normal = float2(-dir.y, dir.x);
+                float2 normal = float2(dir.y, -dir.x);
 
                 bool isSegmentEnd = IsSegmentEnd(v.vertexID);
 
